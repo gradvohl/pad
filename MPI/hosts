@@ -1,3 +1,4 @@
 # Este e o arquivo de hosts do MPI. Nao o altere.
 masternode slots=4
-workernode slots=4
+workernode1 slots=4
+workernode2 slots=4
