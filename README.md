@@ -31,9 +31,6 @@ Para cada uma das tarefas, o estudante deverá produzir um relatório com o resu
 
 Além do envio pelo Moodle, o relatório **também** deverá estar disponível no próprio repositório do estudante, no diretório da biblioteca a que aquele relatório se refere.
 
-### Plágio
-:no_entry_sign: _**O plágio é condenável!**_: Qualquer forma de plágio, independentemente da quantidade de linhas, acarretará em zero no item de avaliação em que foi detectado o plágio para todos os envolvidos, sem distinção entre plagiador e plagiado.
-
 ### Detalhamento dos produtos do projeto
 Os produtos que devem ser entregues como resultado do projeto são os seguintes:
 1. O código fonte do programa completo, documentado e pronto para ser compilado em sistemas Linux.
@@ -67,3 +64,6 @@ A falta de qualquer um dos itens acarretará em nota zero nesse componente de av
 
 ## Informações complementares
 No _site_/repositório [Aloca Matrizes](https://gradvohl.github.io/alocaMatrizes) (https://gradvohl.github.io/alocaMatrizes), há uma discussão a respeito da alocação de matrizes na memória (como um vetor). :point_right: **Recomenda-se a leitura!** :point_left:
+
+### Plágio
+:no_entry_sign: _**O plágio é condenável!**_: Qualquer forma de plágio, independentemente da quantidade de linhas, acarretará em zero no item de avaliação em que foi detectado o plágio para todos os envolvidos, sem distinção entre plagiador e plagiado.
