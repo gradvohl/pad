@@ -65,8 +65,5 @@ double tempoProc = (double)(fim - inicio) / CLOCKS_PER_SEC;
 
 A falta de qualquer um dos itens acarretará em nota zero nesse componente de avaliação.
 
-### Funções auxiliares
-No diretório `generateRandomMatrix` está o código fonte do programa que gera matrizes de números aleatórios. Os alunos podem melhorar ou adaptar o código disponível.
-
 ## Informações complementares
 No _site_/repositório [Aloca Matrizes](https://gradvohl.github.io/alocaMatrizes) (https://gradvohl.github.io/alocaMatrizes), há uma discussão a respeito da alocação de matrizes na memória (como um vetor). :point_right: **Recomenda-se a leitura!** :point_left:
