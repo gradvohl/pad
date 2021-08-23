@@ -12,6 +12,6 @@ O arquivo ``makefile`` contém as instruções para compilar e gerar os programa
 
 Além dos dois programas, há um terceiro programa chamado ``medicaoTempo.c`` que ilustra como realizar a medição de tempo de processamento dentro do programa. Esse programa pode ser compilado com o próprio comando ``make`` ou com a linha de comando a seguir. 
 
-```sh
+```bash
 gcc medicaoTempo.c -o medicaoTempo
 ```
