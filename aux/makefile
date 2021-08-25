@@ -10,9 +10,9 @@
 CC=gcc
 #
 # Arquivos fonte
-FONTES=generateRandomMatrix.c generateRandomMatrixDouble.c MatrixIO.c
+FONTES=generateRandomMatrix.c generateRandomMatrixDouble.c MatrixIO.c medicaoTempo.c
 OBJETOS=$(FONTES:.c=.o)
-EXECUTAVEL=generateRandomMatrix generateRandomMatrixDouble
+EXECUTAVEL=generateRandomMatrix generateRandomMatrixDouble medicaoTempo
 
 #Dependencias de Compilacao
 all: $(EXECUTAVEL)
@@ -25,9 +25,6 @@ generateRandomMatrixDouble: generateRandomMatrixDouble.o MatrixIO.o
 
 MatrixIO.o: MatrixIO.c MatrixIO.h
 	$(CC) -c MatrixIO.c
-
-generateRandomMatrix.o: generateRandomMatrix.c MatrixIO.h
-	$(CC) -c generateRandomMatrix.c
 
 #Limpeza
 clean:
