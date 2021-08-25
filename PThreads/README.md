@@ -2,7 +2,7 @@
 
 Esse diretório contém alguns códigos-fontes com exemplos sobre a biblioteca PThreads, utilizados na disciplina Computação de Alto Desempenho ministrada pelo prof. André Leon Sampaio Gradvohl, Dr.
 
-Para compilar cada programa ``fonte.c``(por exemplo) utilize a seguinte linha de comando em ambientes Linux:
+Para compilar cada programa ``fonte.c`` (por exemplo) utilize a seguinte linha de comando em ambientes Linux:
 ```bash
 gcc -pthreads fonte.c -o executavel
 ```
