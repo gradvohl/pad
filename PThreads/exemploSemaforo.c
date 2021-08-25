@@ -1,164 +1,124 @@
 /**
- * Programa desenvolvido para ilustrar a solucao do problema do
- * produtor/consumidor com o uso de threads e semaforos.
+ * Exemplo simples para ilustrar os semaforos com threads.
  *
- * Comentado por Prof. Andre Leon S. Gradvohl, Dr.
+ * O programa cria varios threads para calcular a soma dos
+ * elementos de um vetor e armazenar em uma variaval global.
  *
- * Atualizado em: 03/08/2011
+ * Prof. Andre Leon S. Gradvohl, Dr.
  */
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include <unistd.h>
+#define TAMANHO  1000
+#define NTHREADS 4
 
-#define N 20
-#define VEZES 60
-
-struct timespec t;
-
-sem_t  mutex, vazio, cheio;
-//vazio: semaforo utilizado pra controlar os sinais relativos as posicoes vazias no buffer
-//cheio: semaforo utilizado pra controlar os sinais relativos as posicoes preenchidas no buffer
-//mutex: semaforo binÃ¡rio utilizado p/ garantir exclusao mutua na regiao critica   
-
-int buffer[N], proxPosCheia, proxPosVazia, cont;
-//buffer: utilizado para armazenar os dados produzidos pelo produtor e consumidos pelo consumidor
-//proxPosCheia: proxima posicao cheia
-//proxPosVazia: proxima posicao vazia
-//cont: usado para controlar a quantidade de dados presentes no buffer
-
-void *produtor(void *);
-void *consumidor(void *);
-
-int main(void)
+/* Estrutura que armazena os parametros para o threads*/
+typedef struct
 {
-	//Seta a semente da funcao geradora de numeros aleatorios
-	srand(time(NULL));
+  unsigned int inicio;
+  unsigned int fim;
+  unsigned int tempoSono;
+  double *vetor;
+} parametros;
 
-	cont = 0;
-	proxPosCheia = 0;
-	proxPosVazia = 0;
+/* Variavel global com a soma total.*/
+double somaTotal = 0;
 
-	/*Inicializa os semaforos
-	1o parametro: variavel semaforo
-	2o parametro: indica se um semaforo sera compartilhado entre as threads de um processo ou entre processos
-		      o valor 0 indica q/ o semaforo sera compartilhado entre as threads de um processo	(digit o comando
-		      "man sem_init" no shell do linux p/ ver os detalhes)
-	3o parametro: valor inicial do semaforo
-	*/ 
-	sem_init(&mutex, 0 , 1);
-	sem_init(&vazio, 0, N);
-	sem_init(&cheio, 0, 0);
-	
-	pthread_t thd0, thd1;
+/* Semaforo (variavel) global. */
+sem_t mutex;
 
-	/*
-	Incializa as threads
-	1o parametro: variavel thread
-	2o parametro: indica se uma thread Ã© "joinable", ou seja, se a thread nao sera finalizada ate chegar a uma chamada de funcao
-		      pthread_join().
-	3o parametro: indica o nome do metodo que irÃ¡ compor o trecho de codigo q/ sera executado pela thread
-	4o parametro: utilizado qdo se necessita passar algum paramentro a thread. Pode se passar quaisquer tipos de dados,
-		      inclusive uma estrutura de dados qdo houver a necessidade de passar mais de um parametro.
-		      (dentro do mÃ©todo chamado realiza-se um cast p/ recuperar os dados)	
-	*/
-	pthread_create(&thd0, 0, (void *) produtor, NULL);
-	pthread_create(&thd1, 0, (void *) consumidor, NULL);
+/**
+ * Thread que soma os elementos de um vetor. O thread recebe
+ * como parametros a posicao de inicial, a posicao final e
+ * o vetor com os elementos a serem somados. Tambem recebe
+ * como parametro o "tempo de sono", o tempo que a thread 
+ * vai "dormir" apos o calculo da soma dos elementos.
+ */
+void *soma(void *args)
+{
+  unsigned int inicio = ((parametros *) args)->inicio;
+  unsigned int fim = ((parametros *) args)->fim;
+  unsigned int tempoSono = ((parametros *) args)->tempoSono;
+  double *vetor = ((parametros *) args)->vetor;
 
-	//Esses dois metodos indicam q/ a tread nÃ£o serÃ¡ finalizada atÃ© ocorrer a chamada dos mesmos (como mencionado anteriormente)
-	pthread_join(thd0,0);
-	pthread_join(thd1,0);
+  double somaParcial = 0;
+  register int i;
 
-        printf("\n");	
-	exit(0);
+  free(args);
+
+  for (i = inicio; i <= fim; i++)
+    somaParcial += vetor[i];
+
+  sleep(tempoSono);
+
+  sem_wait(&mutex);             // Inicio da regiao critica.
+
+  somaTotal = somaTotal + somaParcial;
+
+  sem_post(&mutex);             // Fim da regiao critica.
+
+  pthread_exit(NULL);
 }
 
-
-// Metodo que produz os itens q/ serao inseridos no buffer (numeros aleatorios)
-int produz_item()
+int main(int argc, char *argv[])
 {
-	int val;
-	val = rand() % 100;
-	printf("\nProduzindo item: %d", val);
-	return val;
+  register int i;
+  pthread_t threads[NTHREADS];
+  double *vetor;
+  parametros *p;
+
+  /* Inicializacao do semaforo. */
+  sem_init(&mutex, 0, 1);
+
+  /* Criacao do vetor na memoria. */
+  if ((vetor = (double *) malloc(sizeof(double) * TAMANHO)) == NULL)
+  {
+    fprintf(stderr, "Problemas na alocacao de memoria\n");
+    exit(EXIT_FAILURE);
+  }
+
+  /* Preenchendo os elementos do vetor */
+  for (i = 0; i < TAMANHO; i++)
+    vetor[i] = i;
+
+  /* Criando os threads, cada uma com seus parametros especificos */
+  for (i = 0; i < NTHREADS; i++)
+  {
+    /* Alocacao da estrutura para armazenar os parametros na memoria. */
+    if ((p = (parametros *) malloc(sizeof(parametros))) == NULL)
+    {
+      fprintf(stderr, "Problemas na alocacao de memoria\n");
+      exit(EXIT_FAILURE);
+    }
+
+    /* Preenchimento dos campos na estrutura recem criada. */
+    p->inicio = i * (TAMANHO / NTHREADS);
+    p->fim = (i + 1) * (TAMANHO / NTHREADS) - 1;
+    p->tempoSono = (rand() % NTHREADS);
+    p->vetor = vetor;
+
+    /* Instanciacao do thread */
+    if (pthread_create(&threads[i], NULL, soma, (void *) p))
+    {
+      fprintf(stderr, "Problemas na instanciacao do thread.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  /* Juntando os threads ao thread principal */
+  for (i = 0; i < NTHREADS; i++)
+  {
+    if (pthread_join(threads[i], NULL))
+    {
+      fprintf(stderr, "Problemas na juncao do thread %d.\n", i);
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  printf("A soma dos elementos do vetor e: %lf\n", somaTotal);
+
+  /* Desalocacao do semaforo. */
+  sem_destroy(&mutex);
+  return 0;
 }
-
-// Metodo utilizado p/ mostra o valor q foi consumido (meramente implementado p/ fins didÃ¡ticos)
-void consome_item(int item)
-{
-	printf("\nCosumindo item: %d", item);
-}
-
-//Metodo que a realiza a insercao do dado no buffer
-void insere_item(int val)
-{
-	if(cont < N)
-	{
-		buffer[proxPosVazia] = val;
-		// A utilizacao da divisao em modulo implementa um comportamento circular da utilizacao do buffer
-		// ou seja, qdo o contador chegar no valor de N (N % N = 0) o valor da variavel voltara ao inicio do buffer
-		proxPosVazia = (proxPosVazia + 1) % N; 
-		cont = cont + 1;
-		if(cont == N)
-			printf("\n############## Buffer completo ##############");
-	}
-}
-
-// Metodo que realiza a retirada do dado do buffer
-int remove_item()
-{
-	int val;
-	if(cont > 0)
-	{
-		val = buffer[proxPosCheia];
-		proxPosCheia = (proxPosCheia + 1) % N;
-		cont = cont - 1;
-		return val;
-	}
-}
-
-void *produtor(void *p_arg)
-{
-	int item;
-	register int i=0;
-	
-	while(i++<VEZES)
-	{
-		item = produz_item();
-		
-		// sem_wait (realiza o down no semaforo (ver pag. 81 do livro Sistemas Operacionais - 2a ediÃ§ao - Tanenbaum ))
-		// sem_post (realiza o up no semaforo)
-		sem_wait(&vazio);
-		sem_wait(&mutex);
-		
-		insere_item(item);
-
-		sem_post(&mutex);
-		sem_post(&cheio);
-
-		sleep(item%2);
-	}
-}
-
-void *consumidor(void *p_arg)
-{
-	int item;
-	register int i=0;
-
-        while(i++<VEZES)
-	{
-		sem_wait(&cheio);
-		sem_wait(&mutex);
-
-		item = remove_item();
-
-		sem_post(&mutex);
-		sem_post(&vazio);
-
-		consome_item(item);
-		
-		sleep(item%3);
-	}
-}
-
